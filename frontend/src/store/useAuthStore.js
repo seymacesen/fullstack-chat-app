@@ -72,11 +72,16 @@ export const useAuthStore = create((set, get) => ({
         set({ isUpdatingProfile: true });
         try {
             const res = await axiosInstance.put("/auth/update-profile", data);
-            set({ authUser: res.data });
-            toast.success("Profile updated successfully");
+
+            if (res && res.data) {
+                set({ authUser: res.data }); // Ensure res.data exists
+                toast.success("Profile updated successfully");
+            } else {
+                throw new Error("Unexpected response format"); // Handle unexpected responses
+            }
         } catch (error) {
-            console.log("error in update profile:", error);
-            toast.error(error.response.data.message);
+            console.log("Error in update profile:", error);
+            toast.error(error.response?.data?.message || "Failed to update profile. Please try again.");
         } finally {
             set({ isUpdatingProfile: false });
         }
